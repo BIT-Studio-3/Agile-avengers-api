@@ -5,13 +5,31 @@ const prisma = new PrismaClient();
 
 const getLogins = async (req, res) => {
   try {
-    const logins = await prisma.login.findMany();
+    const query = {
+      
+    };
 
-    if (logins.length === 0) {
-      return res.status(200).json({ msg: "No logins found" });
+    if (req.query.email || req.query.name ) {
+      query.where = {
+        email: {
+          in: req.query.email || undefined,
+        },
+        name: {
+          in: req.query.name || undefined,
+        },
+      
+      };
     }
 
-    return res.json({ data: logins });
+    const logins = await prisma.login.findMany(query);
+
+    if (logins.length === 0) {
+      return res.status(200).json({ msg: "No login found" });
+    }
+
+    return res.json({
+      data: logins,
+    });
   } catch (err) {
     return res.status(500).json({
       msg: err.message,
